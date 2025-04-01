@@ -1,5 +1,5 @@
 <template>
-   <FlowDesigner :options :flow-items />
+   <FlowDesigner :options :flow-components />
 </template>
 
 <script setup lang="ts">
@@ -41,7 +41,7 @@ const createNewFlowItem = (
    });
 };
 
-const flowItems = {
+const flowComponents = {
    source: DataSrouce,
    add: AddItem,
    minus: MinusItem,

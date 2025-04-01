@@ -24,8 +24,6 @@
 
 <script setup lang="ts">
 import { inject, onMounted, onUnmounted, useTemplateRef } from 'vue';
-import { EventEmitter } from '../../utils/event-emitter.util';
-import { GLOBAL_EMITTER } from '../../events/global.event';
 import {
    EndpointEvent,
    REGISTER_ENDPOINT,
@@ -37,6 +35,7 @@ import type {
    RegisterEndpoint,
    UnregisterEndpoint,
 } from '../../types/endpoint.type';
+import { useEmitter } from '../../hooks/useEmitter';
 
 const props = defineProps<{
    position: 'left' | 'right';
@@ -77,10 +76,7 @@ onUnmounted(() => {
 });
 
 // 注入事件总线
-const emitter = inject<EventEmitter>(GLOBAL_EMITTER)!;
-if (!emitter) {
-   throw new Error('Missing global emitter');
-}
+const emitter = useEmitter();
 
 // 处理开始拖拽事件
 function handleDrag() {

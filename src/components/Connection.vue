@@ -1,36 +1,37 @@
 <template>
-   <path
-      :d="curvePath"
-      stroke="transparent"
-      @mouseenter="color = hoverColor"
-      @mouseleave="color = defaultColor"
-      class="pointer-events-auto hover:cursor-pointer"
-      fill="none"
-      stroke-width="8"
-      stroke-linecap="round" />
-   <path
-      :d="curvePath"
-      :stroke="color"
-      fill="none"
-      stroke-width="2"
-      class="transition-colors"
-      stroke-linecap="round" />
-   <path
-      :d="arrowPath"
-      :stroke="color"
-      fill="none"
-      stroke-width="2"
-      class="transition-colors"
-      stroke-linejoin="round"
-      stroke-linecap="round" />
+   <svg class="absolute !pointer-events-none overflow-visible">
+      <path
+         :d="curvePath"
+         stroke="transparent"
+         @mouseenter="color = hoverColor"
+         @mouseleave="color = defaultColor"
+         class="pointer-events-auto hover:cursor-pointer"
+         fill="none"
+         stroke-width="8"
+         stroke-linecap="round" />
+      <path
+         :d="curvePath"
+         :stroke="color"
+         fill="none"
+         stroke-width="2"
+         class="transition-colors"
+         stroke-linecap="round" />
+      <path
+         :d="arrowPath"
+         :stroke="color"
+         fill="none"
+         stroke-width="2"
+         class="transition-colors"
+         stroke-linejoin="round"
+         stroke-linecap="round" />
+   </svg>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onWatcherCleanup, ref, watchEffect } from 'vue';
+import { computed, onWatcherCleanup, ref, watchEffect } from 'vue';
 import { Point } from '../utils/point.util';
-import { EventEmitter } from '../utils/event-emitter.util';
-import { GLOBAL_EMITTER } from '../events/global.event';
 import type { Endpoint } from '../types/endpoint.type';
+import { useEmitter } from '../hooks/useEmitter';
 
 const { type, from, to, fromPosition, toPosition, ...props } = defineProps<{
    from: Endpoint;
@@ -69,10 +70,7 @@ const arrowPath = computed(() => {
 });
 
 // 注入事件总线
-const emitter = inject<EventEmitter>(GLOBAL_EMITTER);
-if (!emitter) {
-   throw new Error('Missing global emitter');
-}
+const emitter = useEmitter();
 
 // 连接双向绑定
 const patch = (endpoint: Endpoint, value: any) =>

@@ -60,9 +60,8 @@ import { REGISTER_ENDPOINT } from '../../events/endpoint.event';
 import type { RegisterFlowItem } from '../../types/flow-item.type';
 import { REGISTER_FLOW_ITEM } from '../../events/flow-item.event';
 import { Point } from '../../utils/point.util';
-import { EventEmitter } from '../../utils/event-emitter.util';
-import { GLOBAL_EMITTER as GLOBAL_EMITTER } from '../../events/global.event';
 import { genId } from '../../utils/uuid.utils';
+import { useEmitter } from '../../hooks/useEmitter';
 
 // 属性
 const props = defineProps<{
@@ -105,10 +104,7 @@ watchEffect(() => {
 });
 
 // 注入事件总线
-const emitter = inject<EventEmitter>(GLOBAL_EMITTER);
-if (!emitter) {
-   throw new Error('Event emitter not found');
-}
+const emitter = useEmitter();
 
 // 更新输出
 const updateOuputs = () => {
