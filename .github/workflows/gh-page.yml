@@ -29,6 +29,8 @@ jobs:
         run: pnpm run build
 
       - name: 🚀 Deploy to GitHub Pages
-        uses: crazy-max/ghaction-github-pages@v4.2.0
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
-          build_dir: dist
+          folder: dist 
+          clean: true 
+          token: ${{ secrets.GH_PAT }}
