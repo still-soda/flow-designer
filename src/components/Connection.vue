@@ -1,32 +1,28 @@
 <template>
-   <svg
-      class="absolute pointer-events-none w-full h-full"
-      :class="{ 'z-10': color === hoverColor }">
-      <path
-         :d="curvePath"
-         stroke="transparent"
-         @mouseenter="color = hoverColor"
-         @mouseleave="color = defaultColor"
-         class="pointer-events-auto hover:cursor-pointer"
-         fill="none"
-         stroke-width="8"
-         stroke-linecap="round" />
-      <path
-         :d="curvePath"
-         :stroke="color"
-         fill="none"
-         stroke-width="2"
-         class="transition-colors"
-         stroke-linecap="round" />
-      <path
-         :d="arrowPath"
-         :stroke="color"
-         fill="none"
-         stroke-width="2"
-         class="transition-colors"
-         stroke-linejoin="round"
-         stroke-linecap="round" />
-   </svg>
+   <path
+      :d="curvePath"
+      stroke="transparent"
+      @mouseenter="color = hoverColor"
+      @mouseleave="color = defaultColor"
+      class="pointer-events-auto hover:cursor-pointer"
+      fill="none"
+      stroke-width="8"
+      stroke-linecap="round" />
+   <path
+      :d="curvePath"
+      :stroke="color"
+      fill="none"
+      stroke-width="2"
+      class="transition-colors"
+      stroke-linecap="round" />
+   <path
+      :d="arrowPath"
+      :stroke="color"
+      fill="none"
+      stroke-width="2"
+      class="transition-colors"
+      stroke-linejoin="round"
+      stroke-linecap="round" />
 </template>
 
 <script setup lang="ts">

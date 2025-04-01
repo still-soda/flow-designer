@@ -1,4 +1,3 @@
-import type { FlowItems } from '../components/flow-items';
 import type { Point } from '../utils/point.util';
 import type { Endpoint } from './endpoint.type';
 
@@ -20,7 +19,7 @@ export interface FlowItem {
    /** 流程项是否正在被拖拽 */
    drag: boolean;
    /** 流程项类型 */
-   type: keyof typeof FlowItems;
+   type: string;
 }
 
 /**

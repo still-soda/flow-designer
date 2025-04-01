@@ -55,22 +55,21 @@ import type {
    RegisterEndpoint,
    Endpoint,
    EndpointProps,
-} from '../../../types/endpoint.type';
-import { REGISTER_ENDPOINT } from '../../../events/endpoint.event';
-import type { RegisterFlowItem } from '../../../types/flow-item.type';
-import { REGISTER_FLOW_ITEM } from '../../../events/flow-item.event';
-import { Point } from '../../../utils/point.util';
-import { EventEmitter } from '../../../utils/event-emitter.util';
-import { GLOBAL_EMITTER as GLOBAL_EMITTER } from '../../../events/global.event';
-import { FlowItems } from '../index';
-import { genId } from '../../../utils/uuid.utils';
+} from '../../types/endpoint.type';
+import { REGISTER_ENDPOINT } from '../../events/endpoint.event';
+import type { RegisterFlowItem } from '../../types/flow-item.type';
+import { REGISTER_FLOW_ITEM } from '../../events/flow-item.event';
+import { Point } from '../../utils/point.util';
+import { EventEmitter } from '../../utils/event-emitter.util';
+import { GLOBAL_EMITTER as GLOBAL_EMITTER } from '../../events/global.event';
+import { genId } from '../../utils/uuid.utils';
 
 // 属性
 const props = defineProps<{
    position: Point;
    id: string;
    endpointProps: EndpointProps[];
-   type: keyof typeof FlowItems;
+   type: string;
 }>();
 
 // 数据

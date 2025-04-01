@@ -1,17 +1,17 @@
 <template>
-   <BasicItem type="minus" :endpoint-props :id :position>
+   <BasicItem type="mult" :endpoint-props :id :position>
       <template #header>
-         <Minus />
-         <h1 class="font-semibold text-sm">减法运算</h1>
+         <Close />
+         <h1 class="font-semibold text-sm">乘法运算</h1>
       </template>
    </BasicItem>
 </template>
 
 <script setup lang="ts">
-import type { EndpointProps } from '../../types/endpoint.type';
-import BasicItem from './BasicItem/index.vue';
-import { Minus } from '@icon-park/vue-next';
-import type { Point } from '../../utils/point.util';
+import type { EndpointProps } from '../types/endpoint.type';
+import BasicItem from '../components/BasicItem/index.vue';
+import { Close } from '@icon-park/vue-next';
+import type { Point } from '../utils/point.util';
 
 const endpointProps: EndpointProps[] = [
    {
@@ -43,7 +43,7 @@ const endpointProps: EndpointProps[] = [
          const input2 = endpoints.find(
             (endpoint) => endpoint.label === '输入2'
          )?.value;
-         return Number(input1) - Number(input2);
+         return Number(input1) * Number(input2);
       },
    },
 ];

@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import type { EndpointProps } from '../../types/endpoint.type';
-import BasicItem from './BasicItem/index.vue';
+import type { EndpointProps } from '../types/endpoint.type';
+import BasicItem from '../components/BasicItem/index.vue';
 import { Data } from '@icon-park/vue-next';
-import type { Point } from '../../utils/point.util';
+import type { Point } from '../utils/point.util';
 
 const endpointProps: EndpointProps[] = [
    {

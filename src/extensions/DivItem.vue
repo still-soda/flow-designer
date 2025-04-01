@@ -8,9 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import type { EndpointProps } from '../../types/endpoint.type';
-import type { Point } from '../../utils/point.util';
-import BasicItem from './BasicItem/index.vue';
+import type { EndpointProps } from '../types/endpoint.type';
+import type { Point } from '../utils/point.util';
+import BasicItem from '../components/BasicItem/index.vue';
 import { Division } from '@icon-park/vue-next';
 
 const endpointProps: EndpointProps[] = [

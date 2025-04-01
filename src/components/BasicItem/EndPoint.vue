@@ -23,20 +23,20 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
-import { EventEmitter } from '../../../utils/event-emitter.util';
-import { GLOBAL_EMITTER } from '../../../events/global.event';
+import { inject, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { EventEmitter } from '../../utils/event-emitter.util';
+import { GLOBAL_EMITTER } from '../../events/global.event';
 import {
    EndpointEvent,
    REGISTER_ENDPOINT,
    UNREGISTER_ENDPOINT,
    type EmitEndpointEvent,
-} from '../../../events/endpoint.event';
+} from '../../events/endpoint.event';
 import type {
    Endpoint,
    RegisterEndpoint,
    UnregisterEndpoint,
-} from '../../../types/endpoint.type';
+} from '../../types/endpoint.type';
 
 const props = defineProps<{
    position: 'left' | 'right';
