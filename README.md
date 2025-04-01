@@ -8,6 +8,10 @@
 
 ![预览图2](images/preview-2.gif)
 
+数据实时更新
+
+![预览图3](images/preview-3.gif)
+
 效果
 
 ![预览图1](images/preview-1.png)
