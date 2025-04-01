@@ -4,7 +4,28 @@
       ref="container"
       @dragstart="(e) => e.preventDefault()"
       class="w-screen h-screen flex bg-gray-50 overflow-hidden grid-bg"
+      :style="{
+         '--x': `${-cameraCenter.x + worldCenter.x}px`,
+         '--y': `${-cameraCenter.y + worldCenter.y}px`,
+         '--scale': cameraScale,
+      }"
       :class="{ 'hover:cursor-move': onDrag }">
+      <!-- 顶部提示 -->
+      <div
+         v-if="!props.hideTips && tipStep < 2"
+         class="absolute top-2 left-1/2 -translate-x-1/2 w-fit px-4 py-2.5 rounded-xl bg-white border-[1px] border-gray-200 text-sm text-gray-500 text-nowrap">
+         <div v-if="tipStep === 0" class="flex gap-2 items-center">
+            <Click />
+            右键点击空白处，添加流程项
+         </div>
+         <div v-else-if="tipStep === 1" class="flex gap-2 items-center">
+            按住
+            <span v-if="platform === 'mac'">⌘</span>
+            <span v-else>Ctrl</span>
+            键上下滚动以缩放画布
+         </div>
+      </div>
+
       <!-- 右键菜单 -->
       <div
          class="absolute z-50 top-0 left-0"
@@ -26,52 +47,61 @@
          </div>
       </div>
 
-      <!-- 流程项（FlowItems） -->
       <div
-         v-for="item in flowItems.values()"
-         :key="item.id"
+         class="w-full h-full pointer-events-none [&>*]:pointer-events-auto"
          :style="{
-            transform: `translate(${item.position.x}px, ${item.position.y}px)`,
-         }"
-         class="w-fit h-fit absolute group z-10 select-none"
-         :class="{ '**:data-operation:opacity-100': item.drag }">
-         <!-- 操作按钮：移动 -->
+            transform: `translate(${-cameraCenter.x}px, ${-cameraCenter.y}px) scale(${cameraScale})`,
+         }">
+         <!-- 流程项（FlowItems） -->
          <div
-            data-operation
-            @mousedown="(e) => handleMoveItem(e, item)"
-            class="absolute bg-white left-1/2 -top-4 size-6 border-[1px] border-gray-300 rounded-full -translate-x-1/2 -translate-y-1/2 items-center justify-center flex z-10 text-xs hover:bg-gray-200 transition-all hover:cursor-move hover:scale-110 opacity-0 group-hover:opacity-100">
-            <MoveIn />
+            v-for="item in flowItems.values()"
+            :key="item.id"
+            :style="{
+               transform: `translate(${item.position.x}px, ${item.position.y}px)`,
+            }"
+            class="w-fit h-fit absolute group z-10 select-none"
+            :class="{ '**:data-operation:opacity-100': item.drag }">
+            <!-- 操作按钮：移动 -->
+            <div
+               data-operation
+               @mousedown="(e) => handleMoveItem(e, item)"
+               class="absolute bg-white left-1/2 -top-4 size-6 border-[1px] border-gray-300 rounded-full -translate-x-1/2 -translate-y-1/2 items-center justify-center flex z-10 text-xs hover:bg-gray-200 transition-all hover:cursor-move hover:scale-110 opacity-0 group-hover:opacity-100">
+               <MoveIn />
+            </div>
+            <!-- 操作按钮：删除 -->
+            <div
+               data-operation
+               @click="handleDelete(item)"
+               class="absolute bg-white right-1/2 -top-4 mr-2 size-6 border-[1px] text-red-600 border-gray-300 rounded-full -translate-x-1/2 -translate-y-1/2 items-center justify-center flex z-10 text-xs hover:bg-gray-200 transition-all hover:cursor-pointer hover:scale-110 opacity-0 group-hover:opacity-100">
+               <Delete />
+            </div>
+            <!-- 流程项组件 -->
+            <div class="transition-transform">
+               <Component
+                  :is="props.flowItems[item.type]"
+                  :id="item.id"
+                  :position="item.position"
+                  ref="flow-item" />
+            </div>
          </div>
-         <!-- 操作按钮：删除 -->
-         <div
-            data-operation
-            @click="handleDelete(item)"
-            class="absolute bg-white right-1/2 -top-4 mr-2 size-6 border-[1px] text-red-600 border-gray-300 rounded-full -translate-x-1/2 -translate-y-1/2 items-center justify-center flex z-10 text-xs hover:bg-gray-200 transition-all hover:cursor-pointer hover:scale-110 opacity-0 group-hover:opacity-100">
-            <Delete />
-         </div>
-         <!-- 流程项组件 -->
-         <div class="transition-transform">
-            <Component
-               :is="FlowItems[item.type]"
-               :id="item.id"
-               :position="item.position"
-               ref="flow-item" />
-         </div>
-      </div>
 
-      <!-- 连接线组件 -->
-      <ConnectionComponent
-         v-for="[id, connection] in connections.entries()"
-         :key="id"
-         :type="connection.type"
-         :from="connection.from"
-         :to="connection.to"
-         :from-position="connection.fromPosition"
-         :to-position="connection.toPosition" />
+         <!-- 连接线组件 -->
+         <svg class="!pointer-events-none overflow-visible">
+            <ConnectionComponent
+               v-for="[id, connection] in connections.entries()"
+               :key="id"
+               :type="connection.type"
+               :from="connection.from"
+               :to="connection.to"
+               :from-position="connection.fromPosition"
+               :to-position="connection.toPosition" />
+         </svg>
+      </div>
    </div>
 </template>
 
 <script setup lang="ts">
+import { Click } from '@icon-park/vue-next';
 import {
    computed,
    nextTick,
@@ -81,6 +111,8 @@ import {
    reactive,
    ref,
    useTemplateRef,
+   watchEffect,
+   type Component,
 } from 'vue';
 import {
    EndpointEvent,
@@ -105,7 +137,6 @@ import type {
    RegisterEndpoint,
    UnregisterEndpoint,
 } from '../types/endpoint.type';
-import { FlowItems } from './flow-items';
 import type { Emitter } from '../types/emitter.type';
 import type { EmitEndpointEvent } from '../events/endpoint.event';
 import type { Option } from '../types/option.type';
@@ -113,8 +144,15 @@ import { Delete, MoveIn } from '@icon-park/vue-next';
 import ConnectionComponent from './Connection.vue';
 import { genId } from '../utils/uuid.utils';
 import { throttle } from '../utils/throttle.util';
+import { debounce } from '../utils/debounce.util';
 
-const props = defineProps<{ emitter?: Emitter; options?: Option[] }>();
+const props = defineProps<{
+   flowItems: Record<string, Component>;
+   emitter?: Emitter;
+   options?: Option[];
+   hideTips?: boolean;
+}>();
+const platform = navigator.userAgent.includes('Mac') ? 'mac' : 'windows';
 
 // 注册事件总线
 const emitter = props.emitter ?? new EventEmitter();
@@ -127,6 +165,29 @@ const connections = reactive<Map<string, Connection>>(new Map());
 
 const endpoint2connection = new WeakMap<Endpoint, Set<Connection>>();
 const options = props.options ?? [];
+
+const containerSize = reactive({
+   width: 0,
+   height: 0,
+});
+const worldCenter = reactive(new Point(0, 0));
+const cameraCenter = reactive(new Point(0, 0));
+const cameraScale = ref(1);
+watchEffect(() => {
+   worldCenter.x = containerSize.width / 2;
+   worldCenter.y = containerSize.height / 2;
+});
+
+const tipStep = ref(0);
+
+// 相机坐标转世界坐标
+const cameraToWorld = (position: Point) => {
+   return cameraCenter
+      .sub(worldCenter)
+      .add(position)
+      .div(cameraScale.value)
+      .add(worldCenter);
+};
 
 // 提供注册方法
 provideRegisterMethods();
@@ -164,9 +225,46 @@ const container = useTemplateRef('container');
 
 onMounted(() => {
    if (!container.value) return;
+   // 计算容器大小
+   containerSize.width = container.value.clientWidth;
+   containerSize.height = container.value.clientHeight;
+   // 监听窗口大小变化
+   const onResize = debounce(() => {
+      containerSize.width = container.value!.clientWidth;
+      containerSize.height = container.value!.clientHeight;
+   }, 100);
+   window.addEventListener('resize', onResize);
+   // 监听 meta键按下
+   let metaKeyPressed = false;
+   document.addEventListener('keydown', (e) => {
+      if (e.metaKey) {
+         metaKeyPressed = true;
+         container.value!.style.cursor = 'move';
+      }
+   });
+   document.addEventListener('keyup', (e) => {
+      if (e.key === 'Meta') {
+         metaKeyPressed = false;
+         container.value!.style.cursor = 'default';
+      }
+   });
+   // 监听滚动事件
+   container.value.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (metaKeyPressed) {
+         tipStep.value === 1 && tipStep.value++;
+         cameraScale.value += e.deltaY * -0.001;
+         cameraScale.value = Math.min(Math.max(0.5, cameraScale.value), 2);
+      } else {
+         cameraCenter.x += e.deltaX;
+         cameraCenter.y += e.deltaY;
+      }
+   });
+   // 监听右键菜单
    container.value.addEventListener('contextmenu', (e) => {
       if (e.target !== container.value) return;
       e.preventDefault();
+      tipStep.value === 0 && tipStep.value++;
       showMenu.value = true;
       menuPosition.x = e.clientX;
       menuPosition.y = e.clientY;
@@ -180,7 +278,10 @@ onMounted(() => {
 
 // 处理右键菜单项点击
 const handleMenuOptionClick = (option: Option) => {
-   option.action({ flowItems, menuPosition });
+   option.action({
+      flowItems,
+      menuPosition: cameraToWorld(menuPosition),
+   });
 };
 
 // 正在拖拽
@@ -194,14 +295,16 @@ const startOffset = new Point(0, 0);
 const handleMoveItem = (e: MouseEvent, item: FlowItem) => {
    if (!container.value) return;
    const { clientX, clientY } = e;
-   startOffset.x = clientX - item.position.x;
-   startOffset.y = clientY - item.position.y;
+   const clickPos = cameraToWorld(new Point(clientX, clientY));
+   startOffset.x = clickPos.x - item.position.x;
+   startOffset.y = clickPos.y - item.position.y;
    item.drag = true;
 
    const handleMove = throttle(async (e: MouseEvent) => {
       // 更新流程项位置
-      item.position.x = e.clientX - startOffset.x;
-      item.position.y = e.clientY - startOffset.y;
+      const mousePos = cameraToWorld(new Point(e.clientX, e.clientY));
+      item.position.x = mousePos.x - startOffset.x;
+      item.position.y = mousePos.y - startOffset.y;
       await nextTick();
       // 更新连接线位置
       item.endpoints.forEach((point) => {
@@ -261,7 +364,8 @@ const deleteConnection = (id: string) => {
 // 元素计算中心点
 const calcCenterPoint = (el: HTMLDivElement) => {
    const { left, top, width, height } = el.getBoundingClientRect();
-   return new Point(left + width / 2, top + height / 2);
+   const p = new Point(left + width / 2, top + height / 2);
+   return cameraToWorld(p);
 };
 
 // 监听连接拖拽事件
@@ -275,12 +379,13 @@ function listenConnectEvents() {
       const fromEndpoint = endpoints.get(event.id);
       if (!fromEndpoint) return;
 
+      const offset = 8 * cameraScale.value;
       const connection: Connection = {
          id: connectionId,
          type: 'forward',
          from: fromEndpoint,
          fromPosition: center,
-         toPosition: new Point(center.x + 8, center.y),
+         toPosition: new Point(center.x + offset, center.y),
       };
       connections.set(connectionId, connection);
       currentConnection = connections.get(connectionId)!;
@@ -290,7 +395,8 @@ function listenConnectEvents() {
             cleanup && cleanup();
             return;
          }
-         currentConnection.toPosition = new Point(e.clientX + 8, e.clientY);
+         const p = new Point(e.clientX + offset, e.clientY);
+         currentConnection.toPosition = cameraToWorld(p);
       }, 16);
       const onMouseUp = async () => {
          if (!currentConnection) {
@@ -353,9 +459,16 @@ onUnmounted(cleanup);
 <style lang="css" scoped>
 /* 背景网格样式 */
 .grid-bg {
+   --rx: calc(1.5px * var(--scale));
+   --ry: calc(1.5px * var(--scale));
+   --sx: calc(26px * var(--scale));
+   --sy: calc(26px * var(--scale));
+
    background-color: #ffffff;
-   background-image: linear-gradient(#e2e2e2 1px, transparent 1px),
-      linear-gradient(to right, #e2e2e2 1px, #ffffff 1px);
-   background-size: 22px 22px;
+   background-image: radial-gradient(#e0e0e0 var(--rx), transparent var(--ry)),
+      radial-gradient(#e0e0e0 var(--rx), #ffffff var(--ry));
+   background-size: var(--sx) var(--sx);
+   background-position: var(--x) var(--y);
+   background-repeat: repeat;
 }
 </style>
