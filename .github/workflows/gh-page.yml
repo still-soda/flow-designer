@@ -20,8 +20,11 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: 📦 Install PNPM
+        run: npm install -g pnpm
+
       - name: 📦 Install Dependencies
-        run: npm install
+        run: pnpm install
 
       - name: 🔧 Build Project
         run: npm run build
