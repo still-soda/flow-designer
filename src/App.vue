@@ -41,6 +41,7 @@ const createNewFlowItem = (
    });
 };
 
+// 流程图组件，key 为自定义流程项时的 type
 const flowComponents = {
    source: DataSrouce,
    add: AddItem,
@@ -50,6 +51,7 @@ const flowComponents = {
    result: ResultItem,
 };
 
+// 自定义右键菜单选项以及对应操作
 const options: Option[] = [
    {
       icon: Data,
