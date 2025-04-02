@@ -66,7 +66,7 @@ src
 
 ### 自定义流程项
 
-参考 `src/extensions` 目录中的自定义流程组件，可以通过引入 `<BaseItem />` 和 `<Endpoint />` 实现自定义组件。
+参考 `src/extensions` 目录中的自定义流程组件，可以通过引入 `<BasicItem />` 和 `<Endpoint />` 实现自定义组件。
 
 此处参考 `ResultItem` 组件：
 
@@ -102,7 +102,7 @@ import type { Point } from '../utils/point.util';
 import { DataDisplay } from '@icon-park/vue-next';
 import BasicItem from '../components/BasicItem/index.vue';
 import EndPoint from '../components/BasicItem/EndPoint.vue';
-// 类型定义参考 `src/types/endpoint.type.ts`，传入 BaseItem
+// 类型定义参考 `src/types/endpoint.type.ts`，传入 BasicItem
 const endpointProps: EndpointProps[] = [
    {
       position: 'left',
@@ -113,7 +113,7 @@ const endpointProps: EndpointProps[] = [
       value: '0',
    },
 ];
-// 自定义组件会被容器传入 `id` 和 `position`，需要绑定在 BaseItem 中
+// 自定义组件会被容器传入 `id` 和 `position`，需要绑定在 BasicItem 中
 defineProps<{ id: string; position: Point }>();
 </script>
 ```
